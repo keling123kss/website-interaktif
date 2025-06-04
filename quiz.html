@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test Seleksi Mandiri - Manual Transmission Quiz Ordered</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f5fdfc;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      padding: 20px;
+    }
+    .sidebar {
+      width: 250px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .main {
+      flex: 1;
+      margin-left: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .question-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin: 20px 0;
+    }
+    .question-nav button {
+      padding: 8px;
+      border: none;
+      background: #00c3ad;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .question-nav button.active {
+      background: #007961;
+      font-weight: bold;
+    }
+    .question-nav button.locked {
+      background: #cccccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+    .question-area {
+      margin-top: 20px;
+    }
+    .question-area p {
+      margin-bottom: 15px;
+    }
+    .options label {
+      display: block;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      margin-right: 10px;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00c3ad;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+      width: 100%;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .navigation-buttons button {
+      padding: 10px 15px;
+      background-color: #eee;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 48%;
+    }
+    .navigation-buttons button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h3>Test</h3>
+      <p>Test Potensi Skolastik</p>
+      <h3>Sisa Waktu</h3>
+      <p id="timer">00 : 15 : 30</p>
+      <h3>Soal</h3>
+      <div class="question-nav" id="question-nav">
+        <!-- Dynamically generate 30 buttons -->
+      </div>
+      <h3>Test Selanjutnya</h3>
+      <p>Test Potensi Akademik</p>
+    </div>
+
+    <div class="main">
+      <div class="top-bar">
+        <h2 id="current-question-title">Pertanyaan 1</h2>
+      </div>
+      <div class="question-area" id="question-area">
+        <p id="question-text">Pertanyaan akan muncul di sini.</p>
+        <div class="options" id="options">
+          <!-- Options will be dynamically generated here -->
+        </div>
+        <div class="navigation-buttons">
+          <button id="prev-btn" onclick="prevQuestion()" disabled>&larr; Sebelumnya</button>
+          <button id="next-btn" onclick="nextQuestion()">Selanjutnya &rarr;</button>
+        </div>
+        <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit Jawaban</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Apa fungsi utama kopling pada sistem transmisi manual?", options: ["Mempercepat kendaraan", "Memindahkan tenaga dari mesin ke roda", "Memisahkan mesin dari transmisi saat perpindahan gigi", "Mengatur kecepatan kendaraan", "Meningkatkan tenaga mesin"], correct: 2 },
+      { question: "Berapa jumlah gigi biasanya pada transmisi manual mobil penumpang?", options: ["2", "4 atau 5", "6 atau 7", "8", "10"], correct: 1 },
+      { question: "Apa nama komponen yang berfungsi menghubungkan gigi transmisi dengan as roda?", options: ["Poros kopel", "As roda", "Gigi diferensial", "Kampas rem", "Bearing"], correct: 2 },
+      { question: "Apa yang terjadi jika kopling diinjak dalam sistem transmisi manual?", options: ["Mesin tersambung ke roda", "Mesin terputus dari transmisi", "Gigi berpindah otomatis", "Kecepatan kendaraan meningkat", "Tidak terjadi apa-apa"], correct: 1 },
+      { question: "Apa fungsi dari gear reduction pada transmisi manual?", options: ["Membuat kendaraan lebih cepat", "Mengurangi kecepatan dan meningkatkan torsi", "Menghubungkan mesin ke roda", "Mengatur bahan bakar mesin", "Mengurangi konsumsi bahan bakar"], correct: 1 },
+      { question: "Pada perpindahan gigi, mengapa penting untuk menggunakan kopling dengan benar?", options: ["Agar suara mesin lebih keras", "Mencegah kerusakan komponen transmisi", "Membuat kendaraan berhenti total", "Mempercepat kendaraan secara tiba-tiba", "Tidak ada alasan khusus"], correct: 1 },
+      { question: "Apa istilah untuk gigi yang digunakan untuk mundur pada transmisi manual?", options: ["Gigi 1", "Gigi 2", "Gigi mundur (reverse)", "Gigi netral", "Gigi terakhir"], correct: 2 },
+      { question: "Apa yang dimaksud dengan posisi netral pada transmisi manual?", options: ["Posisi saat mesin mati", "Posisi saat semua gigi tidak terhubung", "Posisi gigi pertama", "Posisi gigi tertinggi", "Posisi gigi mundur"], correct: 1 },
+      { question: "Apa nama tuas yang digunakan untuk memindahkan gigi pada transmisi manual?", options: ["Tuas kopling", "Tuas rem tangan", "Tuas transmisi", "Tuas gas", "Tuas pedal"], correct: 2 },
+      { question: "Bagaimana cara memindahkan gigi naik dengan lancar pada transmisi manual?", options: ["Melepas kopling secara tiba-tiba", "Menekan gas dan melepas kopling secara lembut", "Menekan rem saat memindahkan gigi", "Tidak perlu menggerakkan kopling", "Menekan pedal gas saja"], correct: 1 },
+      { question: "Apa yang terjadi jika perpindahan gigi dilakukan tanpa menginjak kopling?", options: ["Perpindahan berjalan lancar", "Gigi bisa rusak dan timbul suara kasar", "Kecepatan bertambah", "Mesin mati", "Transmisi otomatis mengatur"], correct: 1 },
+      { question: "Kenapa penting mempelajari pola perpindahan gigi pada mobil manual?", options: ["Supaya bisa mengendarai mobil manual dengan baik", "Agar bisa merusak mobil", "Untuk membuat kendaraan lebih lambat", "Supaya bisa mengganti oli mesin", "Tidak penting sama sekali"], correct: 0 },
+      { question: "Apa fungsi shaft dalam sistem transmisi manual?", options: ["Menghantarkan tenaga dari mesin ke transmisi", "Menyalakan mesin", "Memindahkan tenaga dalam transmisi", "Mengatur kecepatan kendaraan secara otomatis", "Fungsi rem"], correct: 2 },
+      { question: "Apa yang dimaksud dengan 'double clutching'?", options: ["Teknik menginjak kopling dua kali untuk perpindahan gigi lebih halus", "Cara menghentikan kendaraan cepat", "Melepas tuas transmisi dua kali", "Teknik menginjak rem dua kali", "Mengganti gigi tanpa kopling"], correct: 0 },
+      { question: "Komponen apa yang menghubungkan mesin dan transmisi secara mekanis?", options: ["Kopling", "Pedal rem", "Karburator", "Kampas rem", "Radiator"], correct: 0 },
+      { question: "Apa tujuan dari transmisi manual memiliki banyak gigi?", options: ["Meningkatkan efisiensi bahan bakar dan performa kendaraan", "Memberikan suara mesin lebih bising", "Membuat kendaraan lebih lambat", "Mempercepat kerusakan mesin", "Supaya rem lebih responsif"], correct: 0 },
+      { question: "Apa ciri-ciri gigi rendah pada transmisi manual?", options: ["Kecepatan tinggi dan torsi rendah", "Kecepatan rendah dan torsi tinggi", "Kecepatan tinggi dan torsi tinggi", "Tidak ada bedanya", "Transmisi otomatis"], correct: 1 },
+      { question: "Apa fungsi dari synchronizer pada transmisi manual?", options: ["Mempercepat perpindahan gigi dengan menyamakan putaran", "Memperbaiki mesin kendaraan", "Menghubungkan transmisi ke rem", "Meningkatkan kecepatan mesin", "Melepas kopling secara otomatis"], correct: 0 },
+      { question: "Kenapa menurunkan gigi sebelum menikung itu penting?", options: ["Supaya kendaraan bisa melambatkan dan memberikan kontrol lebih baik", "Membuat kendaraan lebih cepat", "Menghemat bahan bakar", "Tidak ada pengaruh", "Supaya mesin cepat panas"], correct: 0 },
+      { question: "Apa yang dimaksud dengan 'wheel spin' saat perpindahan gigi tidak tepat?", options: ["Ban berputar tanpa traksi yang cukup", "Rem mengunci", "Mesin mati", "Kecepatan tinggi secara tiba-tiba", "Clutch slip"], correct: 0 },
+      { question: "Apa yang berfungsi sebagai penghubung antara poros input dan output pada transmisi manual?", options: ["Gearbox", "Kopling", "Differential", "Gigi transmisi", "As roda"], correct: 3 },
+      { question: "Apa nama gigi yang memungkinkan kendaraan melaju dengan kecepatan tertinggi?", options: ["Gigi 1", "Gigi netral", "Gigi tertinggi (overdrive)", "Gigi mundur", "Gigi 3"], correct: 2 },
+      { question: "Apa yang harus dihindari saat memindahkan gigi pada transmisi manual?", options: ["Menginjak kopling penuh", "Mengganti gigi pada putaran mesin tinggi", "Mengganti gigi tanpa menginjak kopling", "Berhenti dan memulai lagi", "Menggunakan rem tangan"], correct: 2 },
+      { question: "Apa yang dilakukan kopling saat perpindahan gigi?", options: ["Menyambungkan mesin ke sistem transmisi", "Memutus hubungan mesin dan transmisi", "Mempercepat kendaraan", "Memperlambat kendaraan", "Mengatur bahan bakar"], correct: 1 },
+      { question: "Apa yang terjadi bila kopling dibiarkan terus diinjak saat kendaraan berjalan?", options: ["Tidak ada efek", "Transmisi dan mesin tidak tersambung, menyebabkan kerusakan kopling", "Mesin bekerja lebih cepat", "Kecepatan kendaraan bertambah", "Rem menjadi lebih efektif"], correct: 1 },
+      { question: "Apa fungsi utama poros input pada transmisi manual?", options: ["Meneruskan tenaga mesin ke transmisi", "Menghubungkan transmisi ke roda", "Mempercepat kendaraan", "Memutus tenaga mesin", "Menyalakan mesin"], correct: 0 },
+      { question: "Bagaimana cara yang benar untuk menurunkan gigi saat mengerem untuk berhenti?", options: ["Mengangkat gas, menginjak kopling, memindahkan gigi ke netral", "Menginjak kopling, gigi tetap di satu persenawah", "Menginjak kopling dan perlahan pindah ke gigi rendah secara bertahap sambil mengerem", "Memindahkan gigi tanpa kopling", "Tidak melakukan apa-apa"], correct: 2 },
+      { question: "Apa nama komponen yang berfungsi menyambungkan dan memutus tenaga mesin secara mekanis pada sistem transmisi manual?", options: ["Pedal gas", "Kopling", "Rem", "Gearbox", "Tuas gigi"], correct: 1 },
+      { question: "Mengapa mobil dengan transmisi manual lebih irit bahan bakar dibanding otomatis?", options: ["Karena pengemudi bisa mengatur perpindahan gigi secara manual sesuai kebutuhan", "Karena transmisi otomatis lebih berat", "Karena mobil manual lebih kecil", "Karena pedal gas berbeda", "Karena rem manual lebih baik"], correct: 0 },
+      { question: "Apa yang dimaksud dengan 'torque' pada transmisi manual?", options: ["Kecepatan putaran mesin", "Gaya puntir yang dihasilkan mesin ke roda", "Tekanan rem", "Jumlah gigi transmisi", "Konsumsi bahan bakar"], correct: 1 }
+    ];
+
+    const questionNav = document.getElementById('question-nav');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options');
+    const currentQuestionTitle = document.getElementById('current-question-title');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const timerEl = document.getElementById('timer');
+
+    let currentQuestionIndex = 0;
+    let userAnswers = Array(questions.length).fill(null);
+    let unlockedQuestionIndex = 0;
+
+    // Generate question navigation buttons
+    for (let i = 0; i < questions.length; i++) {
+      const btn = document.createElement('button');
+      btn.innerText = i + 1;
+      btn.onclick = () => {
+        if(i <= unlockedQuestionIndex) {
+          goToQuestion(i);
+        }
+      };
+      btn.classList.add('locked');
+      questionNav.appendChild(btn);
+    }
+
+    function updateNavButtons() {
+      Array.from(questionNav.children).forEach((btn, index) => {
+        if(index === currentQuestionIndex) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+        if(index <= unlockedQuestionIndex) {
+          btn.classList.remove('locked');
+        } else {
+          btn.classList.add('locked');
+        }
+      });
+    }
+
+    function loadQuestion() {
+      const question = questions[currentQuestionIndex];
+      currentQuestionTitle.innerText = `Pertanyaan ${currentQuestionIndex + 1}`;
+      questionText.innerText = question.question;
+      optionsContainer.innerHTML = '';
+      submitBtn.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+      prevBtn.style.display = 'inline-block';
+      nextBtn.style.display = currentQuestionIndex === questions.length - 1 ? 'none' : 'inline-block';
+
+      question.options.forEach((option, index) => {
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="radio" name="answer" value="${index}" ${userAnswers[currentQuestionIndex] === index ? 'checked' : ''}> ${option}`;
+        label.querySelector('input').addEventListener('change', () => {
+          userAnswers[currentQuestionIndex] = index;
+          if(currentQuestionIndex === unlockedQuestionIndex && unlockedQuestionIndex < questions.length - 1) {
+            unlockedQuestionIndex++;
+          }
+          updateNavButtons();
+          updateNavigationButtons();
+        });
+        optionsContainer.appendChild(label);
+      });
+
+      prevBtn.disabled = currentQuestionIndex === 0;
+      updateNavButtons();
+      updateNavigationButtons();
+    }
+
+    function goToQuestion(index) {
+      currentQuestionIndex = index;
+      loadQuestion();
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (userAnswers[currentQuestionIndex] === null) {
+        alert("Silakan pilih jawaban terlebih dahulu.");
+        return;
+      }
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      }
+    }
+
+    function updateNavigationButtons() {
+      prevBtn.disabled = currentQuestionIndex === 0;
+      if(currentQuestionIndex === questions.length - 1){
+        nextBtn.disabled = true;
+      } else {
+        nextBtn.disabled = userAnswers[currentQuestionIndex] === null;
+      }
+      submitBtn.disabled = userAnswers[currentQuestionIndex] === null;
+    }
+
+    function submitAnswer() {
+      if (userAnswers.includes(null)) {
+        alert("Masih ada soal yang belum dijawab. Harap jawab semua soal.");
+        return;
+      }
+      let score = 0;
+      for (let i = 0; i < questions.length; i++) {
+        if (userAnswers[i] === questions[i].correct) {
+          score++;
+        }
+      }
+      alert(`Tes selesai! Skor anda: ${score} dari ${questions.length}`);
+    }
+
+    // Timer countdown: 30 minutes 0 seconds -> 1800 seconds
+    let timeLeft = 30 * 60 + 0;
+    function pad(num) {
+      return num.toString().padStart(2, '0');
+    }
+
+    function updateTimer() {
+      if(timeLeft <= 0) {
+        timerEl.innerText = "00 : 00 : 00";
+        alert("Waktu tes telah habis!");
+        disableQuiz();
+        clearInterval(timerInterval);
+        return;
+      }
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      timerEl.innerText = `00 : ${pad(minutes)} : ${pad(seconds)}`;
+      timeLeft--;
+    }
+
+    function disableQuiz() {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      submitBtn.disabled = true;
+      Array.from(questionNav.children).forEach(btn => btn.disabled = true);
+      Array.from(document.querySelectorAll('input[name="answer"]')).forEach(input => input.disabled = true);
+    }
+
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    loadQuestion();
+  </script>
+</body>
+</html>
